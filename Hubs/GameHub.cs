@@ -18,23 +18,20 @@ namespace SpeedTypingGame
 
         public async Task AddPlayer(string playerId)
         {
-            _manager.AddPlayer(new Player(playerId, Clients.Caller));
-            if (_manager.HasEnoughPlayers() && !_manager.HasGameStarted())
+            if (_manager.IsPlayerAlreadyInGame(playerId, out string oldGameId, out Dictionary<IGameClient, bool> endGameResult))
             {
-                _manager.StartGame();
-                await Clients.All.StartGame(_manager.GetTargetText());
+                _manager.EndGame(oldGameId);
+                foreach (var kvp in endGameResult)
+                {
+                    await kvp.Key.EndGame(kvp.Value);
+                }
+            }
 
-                /*
-                                var delayInterval = TimeSpan.FromMilliseconds(1000);
-                                var text = _manager.GetTargetText();
-                                for (var i = 5; i >= 0; i--)
-                                {
-                                    var runningTask = DoActionAfter(
-                                        delayInterval,
-                                        () => Clients.All.UpdateCountdown(new UpdateCountdown(i, i == 0 ? text : null)));
-                                    runningTask.Wait();
-                                }
-                                */
+            var gameId = _manager.AddPlayer(new Player(playerId, Clients.Caller));
+            if (_manager.HasEnoughPlayers(gameId))
+            {
+                _manager.StartGame(gameId);
+                await Clients.All.StartGame(_manager.GetTargetText(gameId));
             }
         }
 
@@ -47,19 +44,16 @@ namespace SpeedTypingGame
                 await kvp.Key.UpdateGame(kvp.Value);
             }
 
-            if (_manager.ShouldEndGame(out Dictionary<IGameClient, bool> endGameResult))
+            var game = _manager.GetGameByPlayerId(newCharacterMessage.PlayerId);
+
+            if (_manager.ShouldEndGame(game.Id, out Dictionary<IGameClient, bool> endGameResult))
             {
-                _manager.EndGame();
+                _manager.EndGame(game.Id);
                 foreach (var kvp in endGameResult)
                 {
                     await kvp.Key.EndGame(kvp.Value);
                 }
             }
-        }
-
-        public void EndPreviousGame()
-        {
-            _manager.EndGame();
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Grid, TextField, Typography } from "@material-ui/core";
+import { Box, Grid, TextField, Typography } from "@material-ui/core";
 import React, { ChangeEvent } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/reducer";
@@ -47,11 +47,13 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
     );
     lastSubString = text.substring(gameState.CurrentPlayerIndex + 1);
     targetText = (
-      <div contentEditable>
+      <div contentEditable suppressContentEditableWarning={true}>
         {firstSubString}
-        <span style={{ color: "red" }}>{firstPlayer}</span>
+        <span style={{ color: "red", fontWeight: "bold" }}>{firstPlayer}</span>
         {betweenPlayers}
-        <span style={{ color: "green" }}>{secondPlayer}</span>
+        <span style={{ color: "green", fontWeight: "bold" }}>
+          {secondPlayer}
+        </span>
         {lastSubString}
       </div>
     );
@@ -71,11 +73,13 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
     );
     lastSubString = text.substring(gameState.OtherPlayerIndex + 1);
     targetText = (
-      <div contentEditable>
+      <div contentEditable suppressContentEditableWarning={true}>
         {firstSubString}
-        <span style={{ color: "green" }}>{firstPlayer}</span>
+        <span style={{ color: "green", fontWeight: "bold" }}>
+          {firstPlayer}
+        </span>
         {betweenPlayers}
-        <span style={{ color: "red" }}>{secondPlayer}</span>
+        <span style={{ color: "red", fontWeight: "bold" }}>{secondPlayer}</span>
         {lastSubString}
       </div>
     );
@@ -88,25 +92,50 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
     );
     lastSubString = text.substring(gameState.CurrentPlayerIndex + 1);
     targetText = (
-      <div contentEditable>
+      <div contentEditable suppressContentEditableWarning={true}>
         {firstSubString}
-        <span style={{ color: "blue" }}>{players}</span>
+        <span style={{ color: "blue", fontWeight: "bold" }}>{players}</span>
         {lastSubString}
       </div>
     );
   }
 
+  const Rules = (
+    <div>
+      <p>Color definitions : </p>
+      <ul>
+        <li style={{ color: "green", fontWeight: "bold" }}>
+          Your mark in green
+        </li>
+        <li style={{ color: "red", fontWeight: "bold" }}>
+          Your opponent mark in red
+        </li>
+        <li style={{ color: "blue", fontWeight: "bold" }}>
+          A blue mark if there is a tie
+        </li>
+      </ul>
+      <p>Start Typing the below text as fast as you can !</p>
+    </div>
+  );
+
   return (
     <Grid container direction="column" alignItems="center" spacing={3}>
       <Grid item>
-        <div contentEditable>
-          <Typography variant="h2">{targetText}</Typography>
-        </div>
+        <Typography variant="body1">{Rules}</Typography>
+      </Grid>
+      <Grid item>
+        <Box style={{ borderColor: "grey.500", borderRadius: "16" }}>
+          <Typography variant="h6">
+            <div contentEditable suppressContentEditableWarning={true}>
+              {targetText}
+            </div>
+          </Typography>
+        </Box>
       </Grid>
 
       <Grid item xs={12}>
         <form autoComplete="off">
-          <Typography variant="h2">
+          <Typography variant="h5">
             <TextField
               onChange={(e) => inputChangeHandler(e)}
               id="playerText"

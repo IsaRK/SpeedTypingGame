@@ -9,15 +9,15 @@ namespace SpeedTypingGame
 {
     public interface IGameManager
     {
-        bool HasEnoughPlayers();
-        void AddPlayer(Player newPlayer);
+        bool HasEnoughPlayers(string gameId);
+        string AddPlayer(Player newPlayer);
         Dictionary<IGameClient, GameUpdate> Process(CharacterUpdate newCharacterMessage);
-        void StartGame();
-        void EndGame();
-        bool ShouldEndGame(out Dictionary<IGameClient, bool> endGameResult);
-        bool HasGameStarted();
-
-        string GetTargetText();
+        void StartGame(string gameId);
+        void EndGame(string gameId);
+        bool ShouldEndGame(string gameId, out Dictionary<IGameClient, bool> endGameResult);
+        Game GetGameByPlayerId(string playerId);
+        string GetTargetText(string gameId);
+        bool IsPlayerAlreadyInGame(string playerId, out string oldGameId, out Dictionary<IGameClient, bool> endGameResult);
     }
 
     public class GameManager : IGameManager
@@ -29,67 +29,135 @@ namespace SpeedTypingGame
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public Dictionary<string, Player> Players = new Dictionary<string, Player>();
+        private Dictionary<string, Player> _players = new Dictionary<string, Player>();
 
-        private bool _gameStarted { get; set; }
+        private Dictionary<string, Game> _currentGames = new Dictionary<string, Game>();
 
-        private Player _winner { get; set; }
-
-        private string _text { get; set; }
+        private Game _waitingPlayers = null;
 
         public Dictionary<IGameClient, GameUpdate> Process(CharacterUpdate newCharacterMessage)
         {
-            var currentPlayerIndex = Players[newCharacterMessage.PlayerId].Index;
-            var shouldUpdateIndex = HasCorrectCharacter(currentPlayerIndex, newCharacterMessage.NewCharacter);
+            var currentGame = GetGameByPlayerId(newCharacterMessage.PlayerId);
+
+            if (currentGame == null)
+                throw new Exception("No Game Found");
+
+            var currentPlayerIndex = _players[newCharacterMessage.PlayerId].Index;
+            var shouldUpdateIndex = HasCorrectCharacter(currentGame.Text, currentPlayerIndex, newCharacterMessage.NewCharacter);
 
             var result = new Dictionary<IGameClient, GameUpdate>();
             if (shouldUpdateIndex)
             {
-                var newIndex = Players[newCharacterMessage.PlayerId].Index + 1;
-                Players[newCharacterMessage.PlayerId].Index = newIndex;
+                var newIndex = _players[newCharacterMessage.PlayerId].Index + 1;
+                _players[newCharacterMessage.PlayerId].Index = newIndex;
 
-                if (newIndex >= _text.Length)
+                if (newIndex >= currentGame.Text.Length)
                 {
-                    _winner = Players[newCharacterMessage.PlayerId];
+                    currentGame.Winner = newCharacterMessage.PlayerId;
                 }
 
-                var allPlayersInGame = Players.Where(x => x.Value.InGame).Select(x => x.Value).ToList();
-
-                foreach (var player in allPlayersInGame)
+                //Working only because there is a max of two players
+                for (var i = 0; i < currentGame.Players.Count; i++)
                 {
-                    Players.Remove(player.Id);
-
-                    var othersIndex = Players.Values.Select(x => x.Index).First();
-                    result.Add(player.Connection, new GameUpdate(player.Index, othersIndex));
-
-                    Players.Add(player.Id, player);
+                    var playerId = currentGame.Players[i];
+                    var otherPlayerId = i == 0 ? currentGame.Players[1] : currentGame.Players[0];
+                    result.Add(_players[playerId].Connection, new GameUpdate(_players[playerId].Index, _players[otherPlayerId].Index));
                 }
             }
 
             return result;
         }
-        private bool HasCorrectCharacter(int currentIndex, char newCharacter)
+        private bool HasCorrectCharacter(string text, int currentIndex, char newCharacter)
         {
-            return _text[currentIndex] == newCharacter;
+            return text[currentIndex] == newCharacter;
         }
 
-        public void AddPlayer(Player newPlayer)
+        public string GetTargetText(string gameId)
         {
-            if (!Players.ContainsKey(newPlayer.Id))
+            return _currentGames[gameId].Text;
+        }
+
+        public Game GetGameByPlayerId(string playerId)
+        {
+            foreach (var game in _currentGames.Values)
             {
-                Players.Add(newPlayer.Id, newPlayer);
+                if (game.Players.Contains(playerId))
+                {
+                    return game;
+                }
             }
+            return null;
         }
 
-        public void StartGame()
+        public bool IsPlayerAlreadyInGame(string playerId, out string oldGameId, out Dictionary<IGameClient, bool> endGameResult)
         {
-            _gameStarted = true;
-            _text = SelectText();
-            _winner = null;
-            foreach (var player in Players.Values)
+            Game oldGame = null;
+            endGameResult = null;
+
+            foreach (var game in _currentGames.Values)
             {
-                player.InGame = true;
-                player.Index = 0;
+                if (game.Players.Contains(playerId))
+                {
+                    oldGame = game;
+                    break;
+                }
+            }
+
+            if (_waitingPlayers != null && _waitingPlayers.Players.Contains(playerId))
+            {
+                oldGame = _waitingPlayers;
+            }
+
+            if (oldGame != null)
+            {
+                //Remove player
+                oldGame.Players.Remove(playerId);
+
+                foreach (var player in oldGame.Players)
+                {
+                    endGameResult.Add(_players[player].Connection, true);
+                }
+                oldGameId = oldGame.Id;
+                return true;
+            }
+
+            oldGameId = null;
+            return false;
+        }
+
+        public string AddPlayer(Player newPlayer)
+        {
+            if (!_players.ContainsKey(newPlayer.Id))
+            {
+                _players.Add(newPlayer.Id, newPlayer);
+            }
+
+            Game newGame = null;
+
+            if (_waitingPlayers != null)
+            {
+                newGame = _waitingPlayers;
+                newGame.Players.Add(newPlayer.Id);
+                _waitingPlayers = null;
+                _currentGames.Add(newGame.Id, newGame);
+            }
+            else
+            {
+                newGame = new Game(Guid.NewGuid().ToString());
+                newGame.Players.Add(newPlayer.Id);
+                _waitingPlayers = newGame;
+            }
+
+            return newGame.Id;
+        }
+
+        public void StartGame(string gameId)
+        {
+            _currentGames[gameId].Text = SelectText();
+            _currentGames[gameId].Winner = null;
+            foreach (var playerId in _currentGames[gameId].Players)
+            {
+                _players[playerId].Index = 0;
             }
         }
 
@@ -102,38 +170,33 @@ namespace SpeedTypingGame
             return allTexts[random.Next(0, allTexts.Length - 1)];
         }
 
-        public bool HasGameStarted()
+        public void EndGame(string gameId)
         {
-            return _gameStarted;
-        }
-        public void EndGame()
-        {
-            _gameStarted = false;
-            _text = null;
-            Players = null;
+            _currentGames.Remove(gameId);
+
+            if (_waitingPlayers != null && _waitingPlayers.Id == gameId)
+            {
+                _waitingPlayers = null;
+            }
         }
 
-        public bool ShouldEndGame(out Dictionary<IGameClient, bool> endGameResult)
+        public bool ShouldEndGame(string gameId, out Dictionary<IGameClient, bool> endGameResult)
         {
             endGameResult = new Dictionary<IGameClient, bool>();
 
-            if (_winner == null) return false;
+            if (_currentGames[gameId].Winner == null) return false;
 
-            var allPlayersInGame = Players.Where(x => x.Value.InGame).Select(x => x.Value).ToList();
-
-            foreach (var player in allPlayersInGame)
+            foreach (var player in _currentGames[gameId].Players)
             {
-                endGameResult.Add(player.Connection, player == _winner);
+                endGameResult.Add(_players[player].Connection, _players[player].Id == _currentGames[gameId].Winner);
             }
 
             return true;
         }
 
-        public bool HasEnoughPlayers() { return Players.Keys.Count >= 2; }
-
-        public string GetTargetText()
+        public bool HasEnoughPlayers(string gameId)
         {
-            return _text;
+            return _waitingPlayers == null && _currentGames[gameId].Players.Count == 2;
         }
     }
 }

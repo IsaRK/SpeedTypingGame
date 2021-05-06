@@ -37,7 +37,7 @@ export const CountDown: React.FunctionComponent = () => {
   return (
     <Grid container direction="column" alignItems="center" spacing={3}>
       <Grid item>
-        <Typography variant="h6">{"Start in "}</Typography>
+        <Typography variant="h6">{"Starts in "}</Typography>
       </Grid>
 
       <Grid item>

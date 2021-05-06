@@ -12,13 +12,13 @@ export enum actionTypes {
 
 export type action =
     | { type: actionTypes.WAITING_START }
-    | { type: actionTypes.COUNTDOWN_START, text: string }
+    | { type: actionTypes.COUNTDOWN_START, text: string, id: string }
     | { type: actionTypes.GAME_START }
     | { type: actionTypes.GAME_END, hasWon: boolean }
     | { type: actionTypes.UPDATE_GAME, currentPlayerIndex: number, otherPlayerIndex: number }
 
 export const startWaitingActionCreator = () => ({ type: actionTypes.WAITING_START });
-export const startCountdownActionCreator = (text: string) => ({ type: actionTypes.COUNTDOWN_START, text: text });
+export const startCountdownActionCreator = (text: string, id: string) => ({ type: actionTypes.COUNTDOWN_START, text: text, id: id });
 export const startGameActionCreator = () => ({ type: actionTypes.GAME_START });
 
 export const updateGameActionCreator = (current: number, other: number) => (
@@ -29,5 +29,5 @@ export const endGameActionCreator = (hasWon: boolean) => ({ type: actionTypes.GA
 export const initialPlayerState: PlayerState = { PlayerState: null, HasWon: null, Id: uuidv4() };
 
 export const initialGameState:
-    GameState = { Text: null, CurrentPlayerIndex: 0, OtherPlayerIndex: 0, Countdown: undefined };
+    GameState = { Text: null, CurrentPlayerIndex: 0, OtherPlayerIndex: 0, Countdown: undefined, Id: null };
 

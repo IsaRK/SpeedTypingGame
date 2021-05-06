@@ -10,7 +10,5 @@ namespace SpeedTypingGame
         Task UpdateGame(GameUpdate gameUpdateMessage);
 
         Task EndGame(bool hasWon);
-
-        Task UpdateCountdown(UpdateCountdown updateCountdown);
     }
 }

@@ -20,8 +20,10 @@ export function playerReducer(state = initialPlayerState, action: action): Playe
 
 export function gameReducer(state = initialGameState, action: action): GameState {
     switch (action.type) {
+        case actionTypes.WAITING_START:
+            return { ...state };
         case actionTypes.COUNTDOWN_START:
-            return { ...state, Countdown: 5, Text: action.text };
+            return { ...state, Countdown: 5, Text: action.text, Id: action.id };
         case actionTypes.UPDATE_GAME:
             return { ...state, CurrentPlayerIndex: action.currentPlayerIndex, OtherPlayerIndex: action.otherPlayerIndex };
         default:

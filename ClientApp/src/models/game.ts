@@ -1,4 +1,5 @@
 export type GameState = {
+    Id: string | null
     Text: string | null
     CurrentPlayerIndex: number
     OtherPlayerIndex: number

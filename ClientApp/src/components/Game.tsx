@@ -35,10 +35,12 @@ export const Game: React.FunctionComponent = () => {
         .then(() => {
           console.log("Connected!");
 
-          registerPlayer();
+          if (playerState.PlayerState === PlayerStateEnum.Waiting) {
+            registerPlayer();
+          }
 
-          connection.on("StartGame", (text: string) =>
-            dispatch(startCountdownActionCreator(text))
+          connection.on("StartGame", (text: string, id: string) =>
+            dispatch(startCountdownActionCreator(text, id))
           );
 
           connection.on(
@@ -63,26 +65,6 @@ export const Game: React.FunctionComponent = () => {
         .catch((e) => console.log("Connection failed: ", e));
     }
   }, [connection]);
-
-  /*
-  useEffect(() => {
-    window.addEventListener("beforeunload", endPreviousGame);
-    return () => {
-      window.removeEventListener("beforeunload", endPreviousGame);
-    };
-  }, []);
-  const endPreviousGame = async () => {
-    if (connection) {
-      try {
-        await connection.send("EndPreviousGame", playerState.Id);
-      } catch (e) {
-        console.log(e);
-      }
-    } else {
-      alert("No connection to server yet.");
-    }
-  };
-  */
 
   const registerPlayer = async () => {
     if (connection) {

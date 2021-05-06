@@ -31,7 +31,7 @@ export const StartButton: React.FunctionComponent = () => {
       {resultDisplay}
       <Grid item>
         <Button variant="contained" onClick={startHandler} disabled={false}>
-          Start
+          <Typography variant="h6">Start</Typography>
         </Button>
       </Grid>
     </Grid>
