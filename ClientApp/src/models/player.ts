@@ -8,5 +8,6 @@ export type PlayerState = {
 export enum PlayerStateEnum {
     Starting,
     Waiting,
+    CountingDown,
     Playing
 }

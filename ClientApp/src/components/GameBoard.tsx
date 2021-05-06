@@ -1,4 +1,4 @@
-import { Grid, TextField } from "@material-ui/core";
+import { Grid, TextField, Typography } from "@material-ui/core";
 import React, { ChangeEvent } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/reducer";
@@ -14,14 +14,11 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
   const inputChangeHandler = (
     event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    props.sendUpdate(playerState.Id, event.type.slice(event.type.length - 1));
+    props.sendUpdate(
+      playerState.Id,
+      event.target.value.slice(event.target.value.length - 1)
+    );
   };
-
-  if (
-    gameState.CurrentPlayerIndex === undefined ||
-    gameState.OtherPlayerIndex === undefined
-  )
-    throw new Error("Invalid indexes received");
 
   const text = gameState.Text;
   if (text === null) throw new Error("Invalid Text");
@@ -58,7 +55,7 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
         {lastSubString}
       </div>
     );
-  } else if (gameState.CurrentPlayerIndex > gameState.OtherPlayerIndex) {
+  } else if (gameState.CurrentPlayerIndex < gameState.OtherPlayerIndex) {
     firstSubString = text.substring(0, gameState.CurrentPlayerIndex);
     firstPlayer = text.substring(
       gameState.CurrentPlayerIndex,
@@ -83,7 +80,7 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
       </div>
     );
   } else {
-    //throw
+    //tie
     firstSubString = text.substring(0, gameState.CurrentPlayerIndex);
     players = text.substring(
       gameState.CurrentPlayerIndex,
@@ -102,19 +99,24 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
   return (
     <Grid container direction="column" alignItems="center" spacing={3}>
       <Grid item>
-        <div contentEditable>{targetText}</div>
+        <div contentEditable>
+          <Typography variant="h2">{targetText}</Typography>
+        </div>
       </Grid>
 
-      <Grid item>
-        <form>
-          <TextField
-            onChange={(e) => inputChangeHandler(e)}
-            required
-            id="playerText"
-            label="Your input"
-            defaultValue=""
-            variant="outlined"
-          />
+      <Grid item xs={12}>
+        <form autoComplete="off">
+          <Typography variant="h2">
+            <TextField
+              onChange={(e) => inputChangeHandler(e)}
+              id="playerText"
+              label="Your input"
+              defaultValue=""
+              variant="outlined"
+              autoFocus
+              fullWidth={true}
+            />
+          </Typography>
         </form>
       </Grid>
     </Grid>

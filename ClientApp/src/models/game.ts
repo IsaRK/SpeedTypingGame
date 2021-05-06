@@ -1,13 +1,8 @@
 export type GameState = {
     Text: string | null
-    CurrentPlayerIndex: number | undefined
-    OtherPlayerIndex: number | undefined
+    CurrentPlayerIndex: number
+    OtherPlayerIndex: number
     Countdown: number | undefined
-};
-
-export type UpdateGameMessage = {
-    CurrentPlayerIndex: number | undefined
-    OtherPlayerIndex: number | undefined;
 };
 
 export type UpdateCountdown = {

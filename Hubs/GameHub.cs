@@ -22,7 +22,7 @@ namespace SpeedTypingGame
             if (_manager.HasEnoughPlayers() && !_manager.HasGameStarted())
             {
                 _manager.StartGame();
-                await Clients.All.StartGame();
+                await Clients.All.StartGame(_manager.GetTargetText());
 
                 /*
                                 var delayInterval = TimeSpan.FromMilliseconds(1000);
@@ -36,11 +36,6 @@ namespace SpeedTypingGame
                                 }
                                 */
             }
-        }
-
-        public static Task DoActionAfter(TimeSpan delay, Action action)
-        {
-            return Task.Delay(delay).ContinueWith(_ => action());
         }
 
         public async Task SendCharacter(CharacterUpdate newCharacterMessage)
@@ -60,6 +55,11 @@ namespace SpeedTypingGame
                     await kvp.Key.EndGame(kvp.Value);
                 }
             }
+        }
+
+        public void EndPreviousGame()
+        {
+            _manager.EndGame();
         }
     }
 }

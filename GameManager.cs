@@ -59,7 +59,7 @@ namespace SpeedTypingGame
                 {
                     Players.Remove(player.Id);
 
-                    var othersIndex = Players.Values.Select(x => x.Index).ToList();
+                    var othersIndex = Players.Values.Select(x => x.Index).First();
                     result.Add(player.Connection, new GameUpdate(player.Index, othersIndex));
 
                     Players.Add(player.Id, player);
@@ -89,6 +89,7 @@ namespace SpeedTypingGame
             foreach (var player in Players.Values)
             {
                 player.InGame = true;
+                player.Index = 0;
             }
         }
 
@@ -109,10 +110,7 @@ namespace SpeedTypingGame
         {
             _gameStarted = false;
             _text = null;
-            foreach (var player in Players.Values)
-            {
-                player.InGame = false;
-            }
+            Players = null;
         }
 
         public bool ShouldEndGame(out Dictionary<IGameClient, bool> endGameResult)

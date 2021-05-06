@@ -7,6 +7,8 @@ export function playerReducer(state = initialPlayerState, action: action): Playe
     switch (action.type) {
         case actionTypes.WAITING_START:
             return { ...state, PlayerState: PlayerStateEnum.Waiting };
+        case actionTypes.COUNTDOWN_START:
+            return { ...state, PlayerState: PlayerStateEnum.CountingDown };
         case actionTypes.GAME_START:
             return { ...state, PlayerState: PlayerStateEnum.Playing };
         case actionTypes.GAME_END:
@@ -18,10 +20,8 @@ export function playerReducer(state = initialPlayerState, action: action): Playe
 
 export function gameReducer(state = initialGameState, action: action): GameState {
     switch (action.type) {
-        case actionTypes.GAME_START:
+        case actionTypes.COUNTDOWN_START:
             return { ...state, Countdown: 5, Text: action.text };
-        /*case actionTypes.COUNTDOWN_UPDATE:
-            return { ...state, Countdown: action.countDown, Text: action.text };*/
         case actionTypes.UPDATE_GAME:
             return { ...state, CurrentPlayerIndex: action.currentPlayerIndex, OtherPlayerIndex: action.otherPlayerIndex };
         default:

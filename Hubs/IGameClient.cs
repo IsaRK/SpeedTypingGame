@@ -5,7 +5,7 @@ namespace SpeedTypingGame
     //Will be sent by the server
     public interface IGameClient
     {
-        Task StartGame();
+        Task StartGame(string text);
 
         Task UpdateGame(GameUpdate gameUpdateMessage);
 

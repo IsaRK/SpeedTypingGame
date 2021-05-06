@@ -14,6 +14,7 @@ function App() {
         return <StartButton />;
       case PlayerStateEnum.Waiting:
       case PlayerStateEnum.Playing:
+      case PlayerStateEnum.CountingDown:
         return <Game />;
       default:
         return <StartButton />;

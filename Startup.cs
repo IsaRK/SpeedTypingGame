@@ -38,7 +38,7 @@ namespace SpeedTypingGame
                 {
                     policy.AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithOrigins("http://localhost:5000")
+                    .WithOrigins("http://localhost:3000")
                     .AllowCredentials();
                 });
             });

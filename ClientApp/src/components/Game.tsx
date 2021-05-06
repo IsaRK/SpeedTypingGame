@@ -1,13 +1,10 @@
-import { Grid } from "@material-ui/core";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { UpdateCountdown, UpdateGameMessage } from "../models/game";
 import { PlayerStateEnum } from "../models/player";
 import {
   endGameActionCreator,
-  startGameActionCreator,
-  //updateCountdownUpdateActionCreator,
+  startCountdownActionCreator,
   updateGameActionCreator,
 } from "../redux/actions";
 import { RootState } from "../redux/reducer";
@@ -19,7 +16,6 @@ export const Game: React.FunctionComponent = () => {
   const dispatch = useDispatch();
 
   const playerState = useSelector((state: RootState) => state.playerState);
-  const gameState = useSelector((state: RootState) => state.gameState);
 
   const [connection, setConnection] = useState<HubConnection | null>(null);
 
@@ -38,38 +34,27 @@ export const Game: React.FunctionComponent = () => {
         .start()
         .then(() => {
           console.log("Connected!");
+
           registerPlayer();
 
           connection.on("StartGame", (text: string) =>
-            dispatch(startGameActionCreator(text))
+            dispatch(startCountdownActionCreator(text))
           );
 
-          /*
           connection.on(
-            "UpdateCountdown",
-            (updateCountdown: UpdateCountdown) => {
-              dispatch(
-                updateCountdownUpdateActionCreator(
-                  updateCountdown.Countdown,
-                  updateCountdown.Text
-                )
-              );
-            }
-          );
-          */
-
-          connection.on("UpdateGame", (updateGame: UpdateGameMessage) => {
-            if (updateGame.CurrentPlayerIndex && updateGame.OtherPlayerIndex) {
+            "UpdateGame",
+            (updateGame: {
+              currentPlayerIndex: number;
+              otherPlayersIndex: number;
+            }) => {
               dispatch(
                 updateGameActionCreator(
-                  updateGame.CurrentPlayerIndex,
-                  updateGame.OtherPlayerIndex
+                  updateGame.currentPlayerIndex,
+                  updateGame.otherPlayersIndex
                 )
               );
-            } else {
-              console.log("Invalid indexes received");
             }
-          });
+          );
 
           connection.on("EndGame", (hasWon: boolean) =>
             dispatch(endGameActionCreator(hasWon))
@@ -78,6 +63,26 @@ export const Game: React.FunctionComponent = () => {
         .catch((e) => console.log("Connection failed: ", e));
     }
   }, [connection]);
+
+  /*
+  useEffect(() => {
+    window.addEventListener("beforeunload", endPreviousGame);
+    return () => {
+      window.removeEventListener("beforeunload", endPreviousGame);
+    };
+  }, []);
+  const endPreviousGame = async () => {
+    if (connection) {
+      try {
+        await connection.send("EndPreviousGame", playerState.Id);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      alert("No connection to server yet.");
+    }
+  };
+  */
 
   const registerPlayer = async () => {
     if (connection) {
@@ -110,12 +115,10 @@ export const Game: React.FunctionComponent = () => {
 
   if (playerState.PlayerState === PlayerStateEnum.Waiting) {
     return <Spinner />;
+  } else if (playerState.PlayerState === PlayerStateEnum.CountingDown) {
+    return <CountDown />;
   } else if (playerState.PlayerState === PlayerStateEnum.Playing) {
-    if (gameState.Text) {
-      return <GameBoard sendUpdate={sendUpdate} />;
-    } else {
-      return <CountDown />;
-    }
+    return <GameBoard sendUpdate={sendUpdate} />;
   } else {
     return <div />;
   }
