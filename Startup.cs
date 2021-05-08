@@ -38,7 +38,7 @@ namespace SpeedTypingGame
                 {
                     policy.AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithOrigins("http://localhost:3000")
+                    .WithOrigins("http://localhost:3000", "https://speedtypinggamewebapp.azurewebsites.net")
                     .AllowCredentials();
                 });
             });
@@ -68,9 +68,6 @@ namespace SpeedTypingGame
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
                 endpoints.MapHub<GameHub>("/hubs/game");
             });
 

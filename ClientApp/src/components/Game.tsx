@@ -18,8 +18,10 @@ export const Game: React.FunctionComponent = () => {
   const [connection, setConnection] = useState<HubConnection | null>(null);
 
   useEffect(() => {
+    if (process.env.REACT_APP_GAME_HUB_URI === undefined) throw new Error();
+
     const newConnection = new HubConnectionBuilder()
-      .withUrl("https://localhost:5001/hubs/game")
+      .withUrl(process.env.REACT_APP_GAME_HUB_URI)
       .withAutomaticReconnect()
       .build();
 

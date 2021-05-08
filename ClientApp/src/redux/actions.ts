@@ -7,7 +7,7 @@ export enum actionTypes {
     GAME_START = 'game/GAME_START',
     COUNTDOWN_START = 'game/COUNTDOWN_START',
     GAME_END = 'game/GAME_END',
-    UPDATE_GAME = 'game/UPDATE_GAME',
+    UPDATE_GAME = 'game/UPDATE_GAME'
 }
 
 export type gameAction =

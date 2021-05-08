@@ -8,6 +8,7 @@
     "@microsoft/signalr": "^5.0.5",
     "bootstrap": "^4.3.1",
     "connected-react-router": "6.5.2",
+    "dotenv": "^9.0.0",
     "history": "4.10.1",
     "jquery": "^3.5.1",
     "less": "^4.1.1",
