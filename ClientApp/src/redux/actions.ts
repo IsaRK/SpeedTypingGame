@@ -10,7 +10,7 @@ export enum actionTypes {
     UPDATE_GAME = 'game/UPDATE_GAME',
 }
 
-export type action =
+export type gameAction =
     | { type: actionTypes.WAITING_START }
     | { type: actionTypes.COUNTDOWN_START, text: string, id: string }
     | { type: actionTypes.GAME_START }

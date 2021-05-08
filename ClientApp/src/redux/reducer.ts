@@ -1,9 +1,9 @@
 import { combineReducers } from "redux";
 import { GameState } from "../models/game";
 import { PlayerState, PlayerStateEnum } from "../models/player";
-import { initialPlayerState, action, actionTypes, initialGameState } from "./actions";
+import { initialPlayerState, gameAction, actionTypes, initialGameState } from "./actions";
 
-export function playerReducer(state = initialPlayerState, action: action): PlayerState {
+export function playerReducer(state = initialPlayerState, action: gameAction): PlayerState {
     switch (action.type) {
         case actionTypes.WAITING_START:
             return { ...state, PlayerState: PlayerStateEnum.Waiting };
@@ -18,7 +18,7 @@ export function playerReducer(state = initialPlayerState, action: action): Playe
     }
 }
 
-export function gameReducer(state = initialGameState, action: action): GameState {
+export function gameReducer(state = initialGameState, action: gameAction): GameState {
     switch (action.type) {
         case actionTypes.WAITING_START:
             return { ...state };

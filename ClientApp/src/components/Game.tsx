@@ -14,9 +14,7 @@ import Spinner from "./Spinner";
 
 export const Game: React.FunctionComponent = () => {
   const dispatch = useDispatch();
-
   const playerState = useSelector((state: RootState) => state.playerState);
-
   const [connection, setConnection] = useState<HubConnection | null>(null);
 
   useEffect(() => {
@@ -29,6 +27,18 @@ export const Game: React.FunctionComponent = () => {
   }, []);
 
   useEffect(() => {
+    const registerPlayer = async () => {
+      if (connection) {
+        try {
+          await connection.send("AddPlayer", playerState.Id);
+        } catch (e) {
+          console.log(e);
+        }
+      } else {
+        alert("No connection to server yet.");
+      }
+    };
+
     if (connection) {
       connection
         .start()
@@ -64,19 +74,8 @@ export const Game: React.FunctionComponent = () => {
         })
         .catch((e) => console.log("Connection failed: ", e));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connection]);
-
-  const registerPlayer = async () => {
-    if (connection) {
-      try {
-        await connection.send("AddPlayer", playerState.Id);
-      } catch (e) {
-        console.log(e);
-      }
-    } else {
-      alert("No connection to server yet.");
-    }
-  };
 
   const sendUpdate = async (playerId: string, character: string) => {
     const characterUpdateMessage = {
