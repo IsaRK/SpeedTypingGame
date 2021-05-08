@@ -21,7 +21,7 @@ export const Game: React.FunctionComponent = () => {
     if (process.env.REACT_APP_GAME_HUB_URI === undefined) throw new Error();
 
     const newConnection = new HubConnectionBuilder()
-      .withUrl(process.env.REACT_APP_GAME_HUB_URI)
+      .withUrl("./hubs/game")
       .withAutomaticReconnect()
       .build();
 
