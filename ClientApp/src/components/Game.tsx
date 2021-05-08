@@ -20,8 +20,15 @@ export const Game: React.FunctionComponent = () => {
   useEffect(() => {
     if (process.env.REACT_APP_GAME_HUB_URI === undefined) throw new Error();
 
+    let gameHubUri;
+    if (process.env.NODE_ENV !== "production") {
+      gameHubUri = process.env.REACT_APP_GAME_HUB_URI;
+    } else {
+      gameHubUri = "./hubs/game";
+    }
+
     const newConnection = new HubConnectionBuilder()
-      .withUrl("./hubs/game")
+      .withUrl(gameHubUri)
       .withAutomaticReconnect()
       .build();
 
