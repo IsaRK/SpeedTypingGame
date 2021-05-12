@@ -4,6 +4,7 @@ import Countdown from "react-countdown";
 import { useDispatch, useSelector } from "react-redux";
 import { startGameActionCreator } from "../redux/actions";
 import { RootState } from "../redux/reducer";
+import { ColorRules } from "./Game";
 
 export const CountDown: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -36,6 +37,11 @@ export const CountDown: React.FunctionComponent = () => {
 
   return (
     <Grid container direction="column" alignItems="center" spacing={3}>
+      <Grid item>
+        <Typography component={"span"} variant={"body1"}>
+          {ColorRules}
+        </Typography>
+      </Grid>
       <Grid item>
         <Typography variant="h6">{"Starts in "}</Typography>
       </Grid>

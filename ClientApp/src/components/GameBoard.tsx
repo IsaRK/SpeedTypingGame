@@ -2,6 +2,7 @@ import { Box, Grid, TextField, Typography } from "@material-ui/core";
 import React, { ChangeEvent } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/reducer";
+import { ColorRules } from "./Game";
 
 interface IGameBoardProp {
   sendUpdate: (playerId: string, character: string) => Promise<void>;
@@ -22,6 +23,14 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
 
   const text = gameState.Text;
   if (text === null) throw new Error("Invalid Text");
+
+  const regularText = {
+    color: "darkGray",
+  };
+
+  const isSpaceCurrentPlayer =
+    text.charAt(gameState.CurrentPlayerIndex) === " ";
+  const isSpaceOtherPlayer = text.charAt(gameState.OtherPlayerIndex) === " ";
 
   let targetText,
     firstSubString,
@@ -48,13 +57,23 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
     lastSubString = text.substring(gameState.CurrentPlayerIndex + 1);
     targetText = (
       <div contentEditable suppressContentEditableWarning={true}>
-        {firstSubString}
-        <span style={{ color: "red", fontWeight: "bold" }}>{firstPlayer}</span>
-        {betweenPlayers}
-        <span style={{ color: "green", fontWeight: "bold" }}>
-          {secondPlayer}
-        </span>
-        {lastSubString}
+        <span style={regularText}>{firstSubString}</span>
+        {isSpaceOtherPlayer ? (
+          <span style={{ backgroundColor: "red" }}>{firstPlayer}</span>
+        ) : (
+          <span style={{ color: "red", fontWeight: "bold" }}>
+            {firstPlayer}
+          </span>
+        )}
+        <span style={regularText}>{betweenPlayers}</span>
+        {isSpaceCurrentPlayer ? (
+          <span style={{ backgroundColor: "green" }}>{secondPlayer}</span>
+        ) : (
+          <span style={{ color: "green", fontWeight: "bold" }}>
+            {secondPlayer}
+          </span>
+        )}
+        <span style={regularText}>{lastSubString}</span>
       </div>
     );
   } else if (gameState.CurrentPlayerIndex < gameState.OtherPlayerIndex) {
@@ -74,13 +93,23 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
     lastSubString = text.substring(gameState.OtherPlayerIndex + 1);
     targetText = (
       <div contentEditable suppressContentEditableWarning={true}>
-        {firstSubString}
-        <span style={{ color: "green", fontWeight: "bold" }}>
-          {firstPlayer}
-        </span>
-        {betweenPlayers}
-        <span style={{ color: "red", fontWeight: "bold" }}>{secondPlayer}</span>
-        {lastSubString}
+        <span style={regularText}>{firstSubString}</span>
+        {isSpaceCurrentPlayer ? (
+          <span style={{ backgroundColor: "green" }}>{firstPlayer}</span>
+        ) : (
+          <span style={{ color: "green", fontWeight: "bold" }}>
+            {firstPlayer}
+          </span>
+        )}
+        <span style={regularText}>{betweenPlayers}</span>
+        {isSpaceOtherPlayer ? (
+          <span style={{ backgroundColor: "red" }}>{secondPlayer}</span>
+        ) : (
+          <span style={{ color: "red", fontWeight: "bold" }}>
+            {secondPlayer}
+          </span>
+        )}
+        <span style={regularText}>{lastSubString}</span>
       </div>
     );
   } else {
@@ -93,35 +122,26 @@ export const GameBoard: React.FunctionComponent<IGameBoardProp> = (props) => {
     lastSubString = text.substring(gameState.CurrentPlayerIndex + 1);
     targetText = (
       <div contentEditable suppressContentEditableWarning={true}>
-        {firstSubString}
-        <span style={{ color: "blue", fontWeight: "bold" }}>{players}</span>
-        {lastSubString}
+        <span style={regularText}>{firstSubString}</span>
+        {isSpaceOtherPlayer ? (
+          <span style={{ backgroundColor: "blue" }}>{players}</span>
+        ) : (
+          <span style={{ color: "blue", fontWeight: "bold" }}>{players}</span>
+        )}
+        <span style={regularText}>{lastSubString}</span>
       </div>
     );
   }
 
-  const Rules = (
-    <div>
-      <p>Color definitions : </p>
-      <ul>
-        <li style={{ color: "green", fontWeight: "bold" }}>
-          Your mark in green
-        </li>
-        <li style={{ color: "red", fontWeight: "bold" }}>
-          Your opponent mark in red
-        </li>
-        <li style={{ color: "blue", fontWeight: "bold" }}>
-          A blue mark if there is a tie
-        </li>
-      </ul>
-      <p>Start Typing the below text as fast as you can !</p>
-    </div>
-  );
+  const Rules = <div>Start Typing the below text as fast as you can !</div>;
 
   return (
     <Grid container direction="column" alignItems="center" spacing={3}>
       <Grid item>
-        <Typography variant="body1">{Rules}</Typography>
+        <Typography component={"span"} variant={"body1"}>
+          {ColorRules}
+          {Rules}
+        </Typography>
       </Grid>
       <Grid item>
         <Box style={{ borderColor: "grey.500", borderRadius: "16" }}>

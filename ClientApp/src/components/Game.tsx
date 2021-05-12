@@ -12,6 +12,22 @@ import { CountDown } from "./CountDown";
 import { GameBoard } from "./GameBoard";
 import Spinner from "./Spinner";
 
+export const ColorRules = (
+  <div>
+    <div>Color definitions : </div>
+    <ul>
+      <li style={{ color: "green", fontWeight: "bold" }}>Your mark in green</li>
+      <li style={{ color: "red", fontWeight: "bold" }}>
+        Your opponent mark in red
+      </li>
+      <li style={{ color: "blue", fontWeight: "bold" }}>
+        A blue mark if there is a tie
+      </li>
+    </ul>
+    <div>The game is case sensitive.</div>
+  </div>
+);
+
 export const Game: React.FunctionComponent = () => {
   const dispatch = useDispatch();
   const playerState = useSelector((state: RootState) => state.playerState);
